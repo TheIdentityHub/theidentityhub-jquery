@@ -12,7 +12,21 @@
             isAuthenticated: false,
             isVerified: false,
             token: null,
-            identity: null
+            identity: null,
+            roles: [],
+            isInRole: function(role) {
+                if (!service.principal.isAuthenticated || service.principal.roles.length === 0) {
+                        return false;
+                }
+
+                var found = false;
+                $.each(service.principal.roles, function (index, element) {
+                    found = (element.name === role);
+                    return !found;  
+                });
+
+                return found;
+            }
         }
     };
 
@@ -155,6 +169,25 @@
         });
 
         return deferred.promise();
+    };
+
+    service.getRoles = function() {
+        var deferred = new $.Deferred();
+        var token = getToken();
+
+        $.ajax(service.oauthParameters.baseUrl + "/api/identity/v1/accounts", {
+            type: "GET",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + token.access_token);
+            }
+        }).success(function (response) {
+            service.principal.roles = response;
+            deferred.resolve(response);
+        }).error(function (error) {
+            deferred.reject(error);
+        });
+
+        return deferred.promise;
     };
 
     service.requireTwoFactorAuthentication = function () {
@@ -307,7 +340,7 @@
             parameters = getQueryParameters(hash);
             setToken(parameters);
             if (service.principal.isAuthenticated) {
-                service.getProfile().then(function () {
+                $.when(service.getProfile(), service.getRoles()).then(function () {
                     deferred.resolve();
                 });
 
