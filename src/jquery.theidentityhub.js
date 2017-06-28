@@ -8,21 +8,21 @@
             manualSignIn: true,
             popup: false
         },
-        principal: { 
+        principal: {
             isAuthenticated: false,
             isVerified: false,
             token: null,
             identity: null,
             roles: [],
-            isInRole: function(role) {
+            isInRole: function (role) {
                 if (!service.principal.isAuthenticated || service.principal.roles.length === 0) {
-                        return false;
+                    return false;
                 }
 
                 var found = false;
                 $.each(service.principal.roles, function (index, element) {
                     found = (element.name === role);
-                    return !found;  
+                    return !found;
                 });
 
                 return found;
@@ -115,7 +115,7 @@
 
         return deferred.promise();
     };
-     
+
     service.getProfile = function () {
         var deferred = new $.Deferred();
         var token = getToken();
@@ -171,7 +171,7 @@
         return deferred.promise();
     };
 
-    service.getRoles = function() {
+    service.getRoles = function () {
         var deferred = new $.Deferred();
         var token = getToken();
 
@@ -241,8 +241,8 @@
 
         authenticationBroker({
             "url": accountProvider.signInUrl
-                + "?access_token=" + token.access_token
-                + "&returnurl=" + encodeURIComponent(service.oauthParameters.redirectUri),
+            + "?access_token=" + token.access_token
+            + "&returnurl=" + encodeURIComponent(service.oauthParameters.redirectUri),
             "redirectUri": service.oauthParameters.redirectUri,
             "width": 600,
             "height": 500
@@ -290,7 +290,7 @@
         var token;
         var today = new Date().getTime();
 
-        if (service.principal && service.principal !== undefined) {
+        if (service.principal && service.principal !== undefined && service.principal.token && service.principal.token !== undefined) {
             token = service.principal.token;
             if (token && token.access_token && token.expiry > today) {
                 return token;
@@ -322,7 +322,7 @@
             service.principal.isAuthenticated = true;
             service.principal.isVerified = responseParams.resource_owner_identity_verified === '1';
 
-            sessionStorage.setItem("access_token", service.principal.token);
+            sessionStorage.setItem("access_token", JSON.stringify(service.principal.token));
         }
 
         return null;
@@ -330,7 +330,7 @@
 
     function parseResponse(hash) {
         var deferred = new $.Deferred();
-        var token, parameters;
+        var parameters;
 
         if (!hash || hash === "") {
             hash = window.location.hash;
@@ -390,4 +390,3 @@
 
     $.identityService = service;
 })(jQuery);
-
