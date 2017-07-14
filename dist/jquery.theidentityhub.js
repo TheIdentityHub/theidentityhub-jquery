@@ -175,7 +175,7 @@
         var deferred = new $.Deferred();
         var token = getToken();
 
-        $.ajax(service.oauthParameters.baseUrl + "/api/identity/v1/accounts", {
+        $.ajax(service.oauthParameters.baseUrl + "/api/identity/v1/roles", {
             type: "GET",
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("Authorization", "Bearer " + token.access_token);
